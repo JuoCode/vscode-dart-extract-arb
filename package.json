@@ -9,15 +9,12 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:dart"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "flutter-extract-to-arb.helloWorld",
-        "title": "Hello World"
-      }
-    ]
+    "commands": []
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
