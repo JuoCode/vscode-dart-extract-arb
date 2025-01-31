@@ -13,7 +13,7 @@ which does :
 ## Demo
 
 
-<img src="https://github.com/tempo-riz/vscode-dart-extract-arb/blob/5f1bdd05222f9a6dca29ba8a7ec3eb1e607b4b1f/demo/speed-demo.gif" width="1200"/>
+<img src="https://github.com/tempo-riz/vscode-dart-extract-arb/blob/5121888c070524042e2056689b6bfa94765ceefe/assets/speed-demo.gif" width="1200"/>
 
 ## Setup
 
@@ -39,9 +39,7 @@ And that's it! You're ready to go.
 
 If you want to add a feature or file a bug, please open an issue on the [GitHub repository](https://github.com/tempo-riz/vscode-dart-extract-arb)
 
-## Release Notes
 
-### 1.0.0
+Extension URL : https://marketplace.visualstudio.com/items?itemName=zealousFoundry.flutter-extract-to-arb
 
-Initial release !
-
+INFO  Hub URL: https://marketplace.visualstudio.com/manage/publishers/zealousFoundry/extensions/flutter-extract-to-arb/hub

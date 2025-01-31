@@ -1,12 +1,17 @@
 {
   "name": "flutter-extract-to-arb",
+  "publisher": "zealousFoundry",
   "displayName": "Flutter Extract to ARB",
   "description": "Extract Flutter text into ARB localization files. Supports DeepL auto-translation.",
   "repository": {
     "type": "git",
     "url": "https://github.com/tempo-riz/vscode-dart-extract-arb"
   },
-  "icon": "images/icon.png",
+  "galleryBanner.color": {
+    "theme": "dark",
+    "color": "#2968d0"
+  },
+  "icon": "assets/icon.png",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.96.0"
