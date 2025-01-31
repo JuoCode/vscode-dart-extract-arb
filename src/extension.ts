@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as yaml from 'js-yaml';
 
 export function activate(context: vscode.ExtensionContext) {
     let provider = vscode.languages.registerCodeActionsProvider(
@@ -60,7 +61,34 @@ async function extractToArb(document: vscode.TextDocument, range: vscode.Range, 
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders) return;
 
-    const arbPath = path.join(workspaceFolders[0].uri.fsPath, 'lib/l10n/app_en.arb');
+    const workspacePath = workspaceFolders[0].uri.fsPath;
+
+     // Define path to the l10n.yaml config file
+     const l10nConfigPath = path.join(workspacePath, 'l10n.yaml');
+
+     // Read and parse the YAML config file
+     let l10nConfig: any = null;
+     try {
+         const l10nFile = fs.readFileSync(l10nConfigPath, 'utf8');
+         l10nConfig = yaml.load(l10nFile);
+     } catch (error) {
+         vscode.window.showErrorMessage(`Failed to read l10n.yaml: ${error}`);
+         return;
+     }
+ 
+     if (!l10nConfig) {
+         vscode.window.showErrorMessage('Invalid l10n.yaml configuration.');
+         return;
+     }
+ 
+     // Parse only the relevant settings
+     const arbDir = l10nConfig['arb-dir'] || 'lib/l10n';
+     const templateArbFile = l10nConfig['template-arb-file'] || 'app_en.arb';
+     const keyPrefix = l10nConfig['key-prefix'] || 'context.l10n.';
+     
+
+     const arbPath = path.join(workspacePath, arbDir, templateArbFile);
+
 
     // Read and update ARB file
     try {
@@ -71,7 +99,7 @@ async function extractToArb(document: vscode.TextDocument, range: vscode.Range, 
 
         // Replace the string with `context.l10n.<key>`
         editor.edit(editBuilder => {
-            editBuilder.replace(range, `context.l10n.${key}`);
+            editBuilder.replace(range, `${keyPrefix}${key}`);
         });
 
         vscode.window.showInformationMessage(`Added "${key}" to app_en.arb`);

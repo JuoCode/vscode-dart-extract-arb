@@ -2,6 +2,8 @@
 
 https://code.visualstudio.com/api/get-started/your-first-extension
 
+https://docs.flutter.dev/ui/accessibility-and-internationalization/internationalization#configuring-the-l10n-yaml-file
+
 # flutter-extract-to-arb README
 
 This is the README for your extension "flutter-extract-to-arb". After writing up a brief description, we recommend including the following sections.
