@@ -12,6 +12,6 @@ output-dir: lib/src/localization/gen_l10n
 key-prefix: context.l10n.
 update-all-arb-files: true # The default is false.
 main-locale: en # The default is en.
-auto-translate: false # The default is false.
+auto-translate: true # The default is false.
 # If true must add the following to your vs code's settings.json :
 #   "flutter.deeplApiKey": "your-key",
