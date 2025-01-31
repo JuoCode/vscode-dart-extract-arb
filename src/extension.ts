@@ -4,19 +4,14 @@ import * as path from 'path';
 import * as yaml from 'js-yaml';
 
 export function activate(context: vscode.ExtensionContext) {
-    let provider = vscode.languages.registerCodeActionsProvider(
+    const provider = vscode.languages.registerCodeActionsProvider(
         { language: 'dart', scheme: 'file' },
         new ExtractToArbProvider(),
-        {
-            providedCodeActionKinds: [vscode.CodeActionKind.Refactor]
-        }
+        { providedCodeActionKinds: [vscode.CodeActionKind.Refactor] }
     );
 
-    context.subscriptions.push(provider);
-
-    let command = vscode.commands.registerCommand('flutter.extractToArb', extractToArb);
-
-    context.subscriptions.push(command);
+    const command = vscode.commands.registerCommand('flutter.extractToArb', extractToArb);
+    context.subscriptions.push(provider, command);
 }
 
 export function deactivate() {}
@@ -24,86 +19,114 @@ export function deactivate() {}
 class ExtractToArbProvider implements vscode.CodeActionProvider {
     provideCodeActions(document: vscode.TextDocument, range: vscode.Range): vscode.CodeAction[] {
         const text = document.getText(range);
-        console.log(text);
-        // Match simple string literals
-        if (!text.match(/^['"]([^'"]+)['"]$/)) {
-            return [];
-        }
+        if (!isStringLiteral(text)) return [];
 
-        const action = new vscode.CodeAction("Extract String to ARB", vscode.CodeActionKind.Refactor);
-        action.command = {
-            command: 'flutter.extractToArb',
-            title: "Extract String to ARB",
-            arguments: [document, range, text]
-        };
-
+        const action = createExtractToArbAction(document, range, text);
         return [action];
     }
 }
 
+function isStringLiteral(text: string): boolean {
+    return /^['"]([^'"]+)['"]$/.test(text);
+}
+
+function createExtractToArbAction(document: vscode.TextDocument, range: vscode.Range, text: string): vscode.CodeAction {
+    const action = new vscode.CodeAction("Extract String to ARB", vscode.CodeActionKind.Refactor);
+    action.command = {
+        command: 'flutter.extractToArb',
+        title: "Extract String to ARB",
+        arguments: [document, range, text]
+    };
+    return action;
+}
 
 async function extractToArb(document: vscode.TextDocument, range: vscode.Range, text: string) {
     const editor = vscode.window.activeTextEditor;
     if (!editor) return;
 
-    // Prompt for key name
-    const key = await vscode.window.showInputBox({
+    const key = await promptForKey();
+    if (!key) return;
+
+    const value = text.slice(1, -1); // Remove quotes from the string literal
+
+    const l10nConfig = readL10nConfig();
+    if (!l10nConfig) return;
+
+    const arbDirName =  l10nConfig['arb-dir'] || 'lib/l10n';
+    const templateArbFile = l10nConfig['template-arb-file'] || 'app_en.arb';
+    const updateAllArbs = l10nConfig['update-all-arb-files'] || false;
+    const mainLocaleCode = l10nConfig['main-locale'] || 'en';
+
+
+    const arbWriteSucces = updateArbFile(arbDirName, key, value, updateAllArbs, templateArbFile,mainLocaleCode);
+    if (!arbWriteSucces) return;
+
+    updateEditorText(editor, range, key, l10nConfig['key-prefix'] || 'context.l10n.');
+    vscode.window.showInformationMessage(`Added "${key}" to app_en.arb`);
+}
+
+function updateArb(){
+    
+}
+
+async function promptForKey(): Promise<string | undefined> {
+    return vscode.window.showInputBox({
         prompt: "Enter localization key name",
         placeHolder: "titlePage1",
     });
+}
 
-    if (!key) return;
-
-    // Remove quotes from extracted string
-    const value = text.slice(1, -1);
-
-    // Find the ARB file (assumes it's under `lib/l10n/app_en.arb`)
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders) return;
-
-    const workspacePath = workspaceFolders[0].uri.fsPath;
-
-     // Define path to the l10n.yaml config file
-     const l10nConfigPath = path.join(workspacePath, 'l10n.yaml');
-
-     // Read and parse the YAML config file
-     let l10nConfig: any = null;
-     try {
-         const l10nFile = fs.readFileSync(l10nConfigPath, 'utf8');
-         l10nConfig = yaml.load(l10nFile);
-     } catch (error) {
-         vscode.window.showErrorMessage(`Failed to read l10n.yaml: ${error}`);
-         return;
-     }
- 
-     if (!l10nConfig) {
-         vscode.window.showErrorMessage('Invalid l10n.yaml configuration.');
-         return;
-     }
- 
-     // Parse only the relevant settings
-     const arbDir = l10nConfig['arb-dir'] || 'lib/l10n';
-     const templateArbFile = l10nConfig['template-arb-file'] || 'app_en.arb';
-     const keyPrefix = l10nConfig['key-prefix'] || 'context.l10n.';
-     
-
-     const arbPath = path.join(workspacePath, arbDir, templateArbFile);
-
-
-    // Read and update ARB file
+function readL10nConfig(): any | null {
     try {
-        let arbContent = fs.existsSync(arbPath) ? fs.readFileSync(arbPath, 'utf8') : "{}";
+        const l10nConfigPath = path.join(vscode.workspace.workspaceFolders?.[0].uri.fsPath!, 'l10n.yaml');
+        const l10nFile = fs.readFileSync(l10nConfigPath, 'utf8');
+        return yaml.load(l10nFile);
+    } catch (error) {
+        vscode.window.showErrorMessage(`Failed to read l10n.yaml: ${error}`);
+        return null;
+    }
+}
+
+function updateFile(filename:string,key:string,value:string){
+    try {
+        let arbContent = fs.existsSync(filename) ? fs.readFileSync(filename, 'utf8') : "{}";
         let arbJson = JSON.parse(arbContent);
         arbJson[key] = value;
-        fs.writeFileSync(arbPath, JSON.stringify(arbJson, null, 2), 'utf8');
-
-        // Replace the string with `context.l10n.<key>`
-        editor.edit(editBuilder => {
-            editBuilder.replace(range, `${keyPrefix}${key}`);
-        });
-
-        vscode.window.showInformationMessage(`Added "${key}" to app_en.arb`);
+        fs.writeFileSync(filename, JSON.stringify(arbJson, null, 2), 'utf8');
+       
+        return true;
     } catch (error) {
         vscode.window.showErrorMessage(`Failed to update ARB file: ${error}`);
+        return false;
     }
+}
+
+function updateArbFile(arbDirName: string, key: string, value: string, updateAllArbs: boolean, templateArbFileName:string,mainLocaleCode:string): boolean {
+    const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath!;
+    // app_en.arb or lang_en.arb for example
+    const dirPath = path.join(workspacePath,  arbDirName);
+
+    const fileName = templateArbFileName.replace('en.arb',mainLocaleCode+'.arb'); // app_en.arb -> app_fr.arb
+    
+    const succes= updateFile(path.join(dirPath,fileName),key,value);
+
+    if (!updateAllArbs||!succes) return succes; // if solo or failed, return
+
+    let succes2 = true;
+
+    // then others arb files
+    const files = fs.readdirSync(dirPath);
+    const arbFiles = files.filter(file => file.endsWith('.arb') && file !== fileName);
+    for (const arbFile of arbFiles) {
+        const fullArbPath = path.join(dirPath, arbFile);
+        succes2 = updateFile(fullArbPath,key,value);
+    }
+    return succes2;
+}
+
+
+function updateEditorText(editor: vscode.TextEditor, range: vscode.Range, key: string, keyPrefix: string): void {
+    editor.edit(editBuilder => {
+        editBuilder.replace(range, `${keyPrefix}${key}`);
+    });
 }
