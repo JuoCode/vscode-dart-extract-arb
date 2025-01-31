@@ -13,7 +13,7 @@ which does :
 ## Demo
 
 
-<img src="./demo/speed-demo.gif" width="1200"/>
+<img src="https://github.com/tempo-riz/vscode-dart-extract-arb/blob/5f1bdd05222f9a6dca29ba8a7ec3eb1e607b4b1f/demo/speed-demo.gif" width="1200"/>
 
 ## Setup
 
