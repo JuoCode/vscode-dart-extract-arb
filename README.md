@@ -12,7 +12,8 @@ which does :
 
 ## Demo
 
-![Demo](/demo/speed-demo-gif)
+
+<img src="./demo/speed-demo.gif" width="1200"/>
 
 ## Setup
 
