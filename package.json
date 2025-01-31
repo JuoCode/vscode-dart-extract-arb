@@ -7,12 +7,12 @@
     "type": "git",
     "url": "https://github.com/tempo-riz/vscode-dart-extract-arb"
   },
-  "galleryBanner.color": {
-    "theme": "dark",
-    "color": "#000000"
+  "galleryBanner": {
+    "color": "#2968d0",
+    "theme": "dark"
   },
   "icon": "assets/icon.png",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.96.0"
   },
