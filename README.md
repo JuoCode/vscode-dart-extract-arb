@@ -13,7 +13,7 @@ which does :
 ## Demo
 
 
-<img src="https://github.com/tempo-riz/vscode-dart-extract-arb/blob/5121888c070524042e2056689b6bfa94765ceefe/assets/speed-demo.gif" width="1200"/>
+<img src="https://github.com/tempo-riz/vscode-dart-extract-arb/blob/5121888c070524042e2056689b6bfa94765ceefe/assets/speed-demo.gif?raw=true" width="1200"/>
 
 ## Setup
 
@@ -35,11 +35,9 @@ For the translation feature to work, you need to add your Deepl API key in vscod
 
 `"flutter.deeplApiKey": "your-key",`
 
-And that's it! You're ready to go.
+And that's it! You're ready to go 🚀
+
+Download the extension from the [marketplace](https://marketplace.visualstudio.com/items?itemName=zealousFoundry.flutter-extract-to-arb)
+
 
 If you want to add a feature or file a bug, please open an issue on the [GitHub repository](https://github.com/tempo-riz/vscode-dart-extract-arb)
-
-
-Extension URL : https://marketplace.visualstudio.com/items?itemName=zealousFoundry.flutter-extract-to-arb
-
-INFO  Hub URL: https://marketplace.visualstudio.com/manage/publishers/zealousFoundry/extensions/flutter-extract-to-arb/hub

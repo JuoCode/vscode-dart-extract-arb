@@ -1,6 +1,6 @@
 {
   "name": "flutter-extract-to-arb",
-  "publisher": "zealousFoundry",
+  "publisher": "ZealousFoundry",
   "displayName": "Flutter Extract to ARB",
   "description": "Extract Flutter text into ARB localization files. Supports DeepL auto-translation.",
   "repository": {
@@ -9,7 +9,7 @@
   },
   "galleryBanner.color": {
     "theme": "dark",
-    "color": "#2968d0"
+    "color": "#000000"
   },
   "icon": "assets/icon.png",
   "version": "0.0.1",
