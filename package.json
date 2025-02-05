@@ -17,7 +17,21 @@
     "vscode": "^1.96.0"
   },
   "categories": [
+    "Formatters",
     "Other"
+  ],
+  "keywords": [
+    "arb",
+    "flutter",
+    "json",
+    "l10n",
+    "dart",
+    "localization",
+    "deepl",
+    "extract",
+    "translation",
+    "codeAction",
+    "refactor"
   ],
   "activationEvents": [
     "onLanguage:dart"
