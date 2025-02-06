@@ -8,7 +8,7 @@
     "url": "https://github.com/tempo-riz/vscode-dart-extract-arb"
   },
   "galleryBanner": {
-    "color": "#2968d0",
+    "color": "#6718F5",
     "theme": "dark"
   },
   "icon": "assets/icon.png",
@@ -17,21 +17,25 @@
     "vscode": "^1.96.0"
   },
   "categories": [
-    "Formatters",
     "Other"
   ],
   "keywords": [
     "arb",
+    "dart",
     "flutter",
     "json",
     "l10n",
-    "dart",
+    "i18n",
+    "intl",
     "localization",
     "deepl",
     "extract",
     "translation",
     "codeAction",
-    "refactor"
+    "refactor",
+    "tool",
+    "quickFix",
+    "action"
   ],
   "activationEvents": [
     "onLanguage:dart"

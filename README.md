@@ -2,12 +2,12 @@
 
 <img src="https://github.com/tempo-riz/vscode-dart-extract-arb/blob/5121888c070524042e2056689b6bfa94765ceefe/assets/speed-demo.gif?raw=true" width="1200"/>
 
-### This extension adds a single quick action : "Extract String to ARB" 
+## This extension adds a single code action : 
 
-- Extract the selected text.
-- Prompt for a key name.
-- Add the key-value pair to the ARB file.
-- translate the text using deepl to add it to others arb files.
+### `Extract String to ARB`
+
+Extract selected text, prompt for a key, add it to the ARB file, and translate it with DeepL for other ARB files.
+
 
 ## Quick Setup
 
@@ -18,11 +18,11 @@ This plugins takes into account existing options, and extends it with the follow
 
 
 ```yaml
-# Plugin specific configuration
-key-prefix: context.l10n.
-update-all-arb-files: true # The default is false.
-main-locale: en # The default is en.
-auto-translate: true # The default is false.
+# Plugin specific           # Default values
+key-prefix: context.l10n.   # context.l10n.
+update-all-arb-files: true  # false
+main-locale: en             # en
+auto-translate: true        # false
 ```
 
 For the translation feature to work, you need to add your Deepl API key in vscode settings.json file:
