@@ -51,7 +51,16 @@ ovsx publish --pat <TOKEN>
 1. get selected text between quotes
 2. prompt for key (or gen it based on text)
 3. remove any placeholders from text $val ${value} -> $1 $2
-4. translate text "hello $count" -> "hello $1" -> "bonjour $1" -> "bonjour {val1}"
-5. write to arb
+4. translate text "hello $count" -> "hello {x1}" -> "bonjour {x1}" -> "bonjour {val1}"
+5. write to arb "bonjour {x1}"
 6. import if specified
-7. update text with prefix
+7. update text with prefix -> context.l10n.hello -> context.l10n.hello(count)
+
+
+## example placholder
+
+source: hello $user is ${age} years old
+
+arb : hello: "bonjour {user} est {age} agé"
+
+editor : context.l10n.hello(user, age)
