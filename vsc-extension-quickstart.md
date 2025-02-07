@@ -44,3 +44,4 @@
 ## Publish your extension
 vsce package
 vsce publish
+ovsx publish --pat <TOKEN>
