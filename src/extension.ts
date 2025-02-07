@@ -25,7 +25,21 @@ class ExtractToArbProvider implements vscode.CodeActionProvider {
     document: vscode.TextDocument,
     range: vscode.Range
   ): vscode.CodeAction[] {
-    const text = document.getText(range);
+    let text = document.getText(range);
+
+    // If no text is selected, expand to the nearest string literal
+    if (!text) {
+      const wordRange = document.getWordRangeAtPosition(
+        range.start,
+        /(['"])(.*?)\1/
+      );
+      if (!wordRange) return [];
+      text = document.getText(wordRange);
+      range = wordRange;
+    }
+
+    console.log(text);
+
     if (!isStringLiteral(text)) return [];
 
     const action = createExtractToArbAction(document, range, text);
@@ -34,7 +48,7 @@ class ExtractToArbProvider implements vscode.CodeActionProvider {
 }
 
 function isStringLiteral(text: string): boolean {
-  return /^['"]([^'"]+)['"]$/.test(text);
+  return /^['"](.*?)['"]$/.test(text);
 }
 
 function createExtractToArbAction(
