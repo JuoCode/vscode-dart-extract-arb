@@ -5,22 +5,34 @@ import * as yaml from "js-yaml";
 import * as deepl from "deepl-node";
 import { readL10nConfig } from "./utils";
 
-let options = {};
+let options = {
+  // flutter options
+  arbDirName: "lib/l10n",
+  templateArbFile: "app_en.arb",
+  // package specific options
+  mainLocaleCode: "en",
+  autoTranslate: true,
+  keyPrefix: "AppLocalizations.of(context).",
+  importStr: "",
+  autoGenerateKeyName: false,
+};
 
 // update global object with options
 function setupConfig() {
   const l10nConfig = readL10nConfig();
   if (!l10nConfig) return;
 
-  const arbDirName = l10nConfig["arb-dir"] || "lib/l10n";
-  const templateArbFile = l10nConfig["template-arb-file"] || "app_en.arb";
-  const mainLocaleCode = l10nConfig["main-locale"] || "en";
-  const autoTranslate = l10nConfig["translate"] || true;
-  const importStr = l10nConfig["import-line"] || "";
-  const keyPrefix = l10nConfig["key-prefix"] || "context.l10n.";
-  // const autoGenerateKeyName = l10nConfig["auto-name-key"] || false;
-
-  options = {}; // TODO
+  options = {
+    ...options, // Preserve existing defaults
+    arbDirName: l10nConfig["arb-dir"] ?? options.arbDirName,
+    templateArbFile: l10nConfig["template-arb-file"] ?? options.templateArbFile,
+    mainLocaleCode: l10nConfig["main-locale"] ?? options.mainLocaleCode,
+    autoTranslate: l10nConfig["translate"] ?? options.autoTranslate,
+    importStr: l10nConfig["import-line"] ?? options.importStr,
+    keyPrefix: l10nConfig["key-prefix"] ?? options.keyPrefix,
+    autoGenerateKeyName:
+      l10nConfig["auto-name-key"] ?? options.autoGenerateKeyName,
+  };
 }
 
 export async function extractToArb(
@@ -28,6 +40,8 @@ export async function extractToArb(
   range: vscode.Range,
   text: string
 ) {
+  setupConfig();
+
   const editor = vscode.window.activeTextEditor;
   if (!editor) return;
 
@@ -36,29 +50,22 @@ export async function extractToArb(
 
   const value = text.slice(1, -1); // Remove quotes from the string literal
 
-  setupConfig();
-
-  const arbWriteSucces = updateArbFiles(
-    arbDirName,
-    key,
-    value,
-    templateArbFile,
-    mainLocaleCode,
-    autoTranslate
-  );
+  const arbWriteSucces = updateArbFiles(key, value);
   if (!arbWriteSucces) return;
 
-  if (importStr) await addImportIfMissing(document, editor, importStr);
+  await addImportIfMissing(document, editor);
 
-  updateEditorText(editor, range, key, keyPrefix);
+  updateEditorText(editor, range, key);
   vscode.window.showInformationMessage(`Added "${key}" to app_en.arb`);
 }
 
 async function addImportIfMissing(
   document: vscode.TextDocument,
-  editor: vscode.TextEditor,
-  importStr: string
+  editor: vscode.TextEditor
 ) {
+  const importStr = options.importStr;
+  if (!importStr) return;
+
   // Check if the import already exists
   if (document.getText().includes(importStr)) return;
 
@@ -71,7 +78,7 @@ async function addImportIfMissing(
 async function promptForKey(): Promise<string | undefined> {
   return vscode.window.showInputBox({
     prompt: "Enter localization key name",
-    placeHolder: "titlePage1",
+    placeHolder: "key name",
   });
 }
 
@@ -117,22 +124,15 @@ async function translateText(
   return result.text;
 }
 
-async function updateArbFiles(
-  arbDirName: string,
-  key: string,
-  value: string,
-  templateArbFileName: string,
-  mainLocaleCode: string,
-  autoTranslate: boolean
-): Promise<boolean> {
+async function updateArbFiles(key: string, value: string): Promise<boolean> {
   const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath!;
   // app_en.arb or lang_en.arb for example
-  const arbDirPath = path.join(workspacePath, arbDirName);
+  const arbDirPath = path.join(workspacePath, options.arbDirName);
 
   // app_en.arb -> app_fr.arb
-  const mainArbFileName = templateArbFileName.replace(
+  const mainArbFileName = options.templateArbFile.replace(
     "en.arb",
-    mainLocaleCode + ".arb"
+    options.mainLocaleCode + ".arb"
   );
 
   let ok = true;
@@ -142,10 +142,10 @@ async function updateArbFiles(
   for (const arbFile of arbFiles) {
     const fullArbPath = path.join(arbDirPath, arbFile);
     const val =
-      autoTranslate && arbFile !== mainArbFileName
+      options.autoTranslate && arbFile !== mainArbFileName
         ? await translateText(
             value,
-            mainLocaleCode,
+            options.mainLocaleCode,
             arbFile.split("_")[1].split(".")[0]
           )
         : value;
@@ -158,10 +158,9 @@ async function updateArbFiles(
 function updateEditorText(
   editor: vscode.TextEditor,
   range: vscode.Range,
-  key: string,
-  keyPrefix: string
+  key: string
 ): void {
   editor.edit((editBuilder) => {
-    editBuilder.replace(range, `${keyPrefix}${key}`);
+    editBuilder.replace(range, `${options.keyPrefix}${key}`);
   });
 }

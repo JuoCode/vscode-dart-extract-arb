@@ -14,15 +14,15 @@ Extract selected text, prompt for a key, add it to the ARB file, and translate i
 You should already have a l10n.yaml file in your project. If not, create one.
 it uses flutter's official options for internationalization. see [here](https://docs.flutter.dev/ui/accessibility-and-internationalization/internationalization#configuring-the-l10n-yaml-file)
 
-This plugins takes into account existing options, and extends it with the following options:
+This plugins extends existing options with the following options:
 
 
 ```yaml
 # Plugin specific           # Default values
-key-prefix: context.l10n.   # context.l10n.
-main-locale: en             # en
+main-locale: fr             # en
 translate: true             # true
-import-line: import ...     # '' (won't add import line)
+key-prefix: context.l10n.   # AppLocalizations.of(context).
+import-line: import ...     # '' (none)
 ```
 
 For the translation feature to work, you need to add your Deepl API key in vscode settings.json file:
