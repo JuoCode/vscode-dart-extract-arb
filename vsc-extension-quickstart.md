@@ -45,3 +45,13 @@
 vsce package
 vsce publish
 ovsx publish --pat <TOKEN>
+
+
+## Logic
+1. get selected text between quotes
+2. prompt for key (or gen it based on text)
+3. remove any placeholders from text $val ${value} -> $1 $2
+4. translate text "hello $count" -> "hello $1" -> "bonjour $1" -> "bonjour {val1}"
+5. write to arb
+6. import if specified
+7. update text with prefix

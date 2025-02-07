@@ -18453,6 +18453,7 @@ var ExtractToArbProvider = class {
       range = wordRange;
     }
     if (!isStringLiteral(text)) return [];
+    console.log("Extracting string:", text);
     const action = createExtractToArbAction(document2, range, text);
     return [action];
   }
@@ -18482,17 +18483,14 @@ async function extractToArb(document2, range, text) {
   if (!l10nConfig) return;
   const arbDirName = l10nConfig["arb-dir"] || "lib/l10n";
   const templateArbFile = l10nConfig["template-arb-file"] || "app_en.arb";
-  const updateAllArbs = l10nConfig["update-all-arb-files"] || false;
   const mainLocaleCode = l10nConfig["main-locale"] || "en";
-  const autoTranslate = l10nConfig["auto-translate"] || false;
+  const autoTranslate = l10nConfig["translate"] || true;
   const importStr = l10nConfig["import-line"] || "";
   const keyPrefix = l10nConfig["key-prefix"] || "context.l10n.";
-  const autoGenerateKeyName = l10nConfig["auto-generate-key-name"] || false;
   const arbWriteSucces = updateArbFiles(
     arbDirName,
     key,
     value,
-    updateAllArbs,
     templateArbFile,
     mainLocaleCode,
     autoTranslate
@@ -18557,30 +18555,26 @@ async function translateText(text, sourceLang, targetLang) {
   );
   return result.text;
 }
-async function updateArbFiles(arbDirName, key, value, updateAllArbs, templateArbFileName, mainLocaleCode, autoTranslate) {
+async function updateArbFiles(arbDirName, key, value, templateArbFileName, mainLocaleCode, autoTranslate) {
   const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
-  const dirPath = path.join(workspacePath, arbDirName);
-  const fileName = templateArbFileName.replace(
+  const arbDirPath = path.join(workspacePath, arbDirName);
+  const mainArbFileName = templateArbFileName.replace(
     "en.arb",
     mainLocaleCode + ".arb"
   );
-  const succes = updateFile(path.join(dirPath, fileName), key, value);
-  if (!updateAllArbs || !succes) return succes;
-  let succes2 = true;
-  const files = fs.readdirSync(dirPath);
-  const arbFiles = files.filter(
-    (file) => file.endsWith(".arb") && file !== fileName
-  );
+  let ok = true;
+  const arbFiles = fs.readdirSync(arbDirPath).filter((f) => f.endsWith(".arb"));
   for (const arbFile of arbFiles) {
-    const fullArbPath = path.join(dirPath, arbFile);
-    const val = autoTranslate ? await translateText(
+    const fullArbPath = path.join(arbDirPath, arbFile);
+    console.log("Updating ARB file:", fullArbPath, mainArbFileName);
+    const val = autoTranslate && arbFile !== mainArbFileName ? await translateText(
       value,
       mainLocaleCode,
       arbFile.split("_")[1].split(".")[0]
     ) : value;
-    succes2 = updateFile(fullArbPath, key, val);
+    ok = ok && updateFile(fullArbPath, key, val);
   }
-  return succes2;
+  return ok;
 }
 function updateEditorText(editor, range, key, keyPrefix) {
   editor.edit((editBuilder) => {

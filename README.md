@@ -20,9 +20,9 @@ This plugins takes into account existing options, and extends it with the follow
 ```yaml
 # Plugin specific           # Default values
 key-prefix: context.l10n.   # context.l10n.
-update-all-arb-files: true  # false
 main-locale: en             # en
-auto-translate: true        # false
+translate: true             # true
+import-line: import ...     # '' (won't add import line)
 ```
 
 For the translation feature to work, you need to add your Deepl API key in vscode settings.json file:
