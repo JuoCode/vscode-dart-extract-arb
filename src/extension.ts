@@ -38,8 +38,6 @@ class ExtractToArbProvider implements vscode.CodeActionProvider {
       range = wordRange;
     }
 
-    console.log(text);
-
     if (!isStringLiteral(text)) return [];
 
     const action = createExtractToArbAction(document, range, text);
@@ -58,7 +56,7 @@ function createExtractToArbAction(
 ): vscode.CodeAction {
   const action = new vscode.CodeAction(
     "Extract String to ARB",
-    vscode.CodeActionKind.Refactor
+    vscode.CodeActionKind.RefactorExtract
   );
   action.command = {
     command: "flutter.extractToArb",
@@ -89,6 +87,8 @@ async function extractToArb(
   const updateAllArbs = l10nConfig["update-all-arb-files"] || false;
   const mainLocaleCode = l10nConfig["main-locale"] || "en";
   const autoTranslate = l10nConfig["auto-translate"] || false;
+  const importStr = l10nConfig["import-line"] || "";
+  const keyPrefix = l10nConfig["key-prefix"] || "context.l10n.";
 
   const arbWriteSucces = updateArbFile(
     arbDirName,
@@ -101,16 +101,25 @@ async function extractToArb(
   );
   if (!arbWriteSucces) return;
 
-  updateEditorText(
-    editor,
-    range,
-    key,
-    l10nConfig["key-prefix"] || "context.l10n."
-  );
+  if (importStr) await addImportIfMissing(document, editor, importStr);
+
+  updateEditorText(editor, range, key, keyPrefix);
   vscode.window.showInformationMessage(`Added "${key}" to app_en.arb`);
 }
 
-function updateArb() {}
+async function addImportIfMissing(
+  document: vscode.TextDocument,
+  editor: vscode.TextEditor,
+  importStr: string
+) {
+  // Check if the import already exists
+  if (document.getText().includes(importStr)) return;
+
+  // Insert at the top of the file
+  await editor.edit((editBuilder) => {
+    editBuilder.insert(new vscode.Position(0, 0), importStr + "\n");
+  });
+}
 
 async function promptForKey(): Promise<string | undefined> {
   return vscode.window.showInputBox({

@@ -18452,7 +18452,6 @@ var ExtractToArbProvider = class {
       text = document2.getText(wordRange);
       range = wordRange;
     }
-    console.log(text);
     if (!isStringLiteral(text)) return [];
     const action = createExtractToArbAction(document2, range, text);
     return [action];
@@ -18464,7 +18463,7 @@ function isStringLiteral(text) {
 function createExtractToArbAction(document2, range, text) {
   const action = new vscode.CodeAction(
     "Extract String to ARB",
-    vscode.CodeActionKind.Refactor
+    vscode.CodeActionKind.RefactorExtract
   );
   action.command = {
     command: "flutter.extractToArb",
@@ -18486,6 +18485,8 @@ async function extractToArb(document2, range, text) {
   const updateAllArbs = l10nConfig["update-all-arb-files"] || false;
   const mainLocaleCode = l10nConfig["main-locale"] || "en";
   const autoTranslate = l10nConfig["auto-translate"] || false;
+  const importStr = l10nConfig["import-line"] || "";
+  const keyPrefix = l10nConfig["key-prefix"] || "context.l10n.";
   const arbWriteSucces = updateArbFile(
     arbDirName,
     key,
@@ -18496,13 +18497,15 @@ async function extractToArb(document2, range, text) {
     autoTranslate
   );
   if (!arbWriteSucces) return;
-  updateEditorText(
-    editor,
-    range,
-    key,
-    l10nConfig["key-prefix"] || "context.l10n."
-  );
+  if (importStr) await addImportIfMissing(document2, editor, importStr);
+  updateEditorText(editor, range, key, keyPrefix);
   vscode.window.showInformationMessage(`Added "${key}" to app_en.arb`);
+}
+async function addImportIfMissing(document2, editor, importStr) {
+  if (document2.getText().includes(importStr)) return;
+  await editor.edit((editBuilder) => {
+    editBuilder.insert(new vscode.Position(0, 0), importStr + "\n");
+  });
 }
 async function promptForKey() {
   return vscode.window.showInputBox({
