@@ -89,8 +89,9 @@ async function extractToArb(
   const autoTranslate = l10nConfig["auto-translate"] || false;
   const importStr = l10nConfig["import-line"] || "";
   const keyPrefix = l10nConfig["key-prefix"] || "context.l10n.";
+  const autoGenerateKeyName = l10nConfig["auto-generate-key-name"] || false;
 
-  const arbWriteSucces = updateArbFile(
+  const arbWriteSucces = updateArbFiles(
     arbDirName,
     key,
     value,
@@ -184,7 +185,7 @@ async function translateText(
   return result.text;
 }
 
-async function updateArbFile(
+async function updateArbFiles(
   arbDirName: string,
   key: string,
   value: string,
@@ -216,17 +217,15 @@ async function updateArbFile(
   for (const arbFile of arbFiles) {
     const fullArbPath = path.join(dirPath, arbFile);
 
-    succes2 = updateFile(
-      fullArbPath,
-      key,
-      autoTranslate
-        ? await translateText(
-            value,
-            mainLocaleCode,
-            arbFile.split("_")[1].split(".")[0]
-          )
-        : value
-    );
+    const val = autoTranslate
+      ? await translateText(
+          value,
+          mainLocaleCode,
+          arbFile.split("_")[1].split(".")[0]
+        )
+      : value;
+
+    succes2 = updateFile(fullArbPath, key, val);
   }
   return succes2;
 }
