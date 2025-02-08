@@ -16,13 +16,13 @@ it uses flutter's official options for internationalization. see [here](https://
 
 This plugins extends existing options with the following options:
 
-
+### Options with default values
 ```yaml
-# Plugin specific           # Default values
-main-locale: fr             # en
-translate: true             # true
-key-prefix: context.l10n.   # AppLocalizations.of(context).
-import-line: import ...     # '' (none)
+# l10n.yaml (plugin specific options)
+translate: true                             # Enable translation 
+key-prefix: AppLocalizations.of(context).   # Key prefix for translation
+import-line: ""                             # Import line if needed
+auto-name-key: false                        # Generate keys name 
 ```
 
 For the translation feature to work, you need to add your Deepl API key in vscode settings.json file:

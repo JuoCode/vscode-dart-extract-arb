@@ -18449,50 +18449,65 @@ function readL10nConfig() {
     return null;
   }
 }
+function extractKeyNameFromText(text) {
+  return text.toLowerCase().replaceAll(/[^a-z0-9]+/g, " ").replace(
+    /(?:^\w|[A-Z]|\b\w|\s+)/g,
+    (match, index) => index === 0 ? match.toLowerCase() : match.toUpperCase()
+  ).replace(/\s+/g, "");
+}
 
 // src/action.ts
-var options = {};
+var options = {
+  // flutter options
+  arbDirName: "lib/l10n",
+  templateArbFile: "app_en.arb",
+  // package specific options
+  // mainLocaleCode: "en",
+  autoTranslate: true,
+  keyPrefix: "AppLocalizations.of(context).",
+  importStr: "",
+  autoGenerateKeyName: false
+};
 function setupConfig() {
   const l10nConfig = readL10nConfig();
   if (!l10nConfig) return;
-  const arbDirName2 = l10nConfig["arb-dir"] || "lib/l10n";
-  const templateArbFile2 = l10nConfig["template-arb-file"] || "app_en.arb";
-  const mainLocaleCode2 = l10nConfig["main-locale"] || "en";
-  const autoTranslate2 = l10nConfig["translate"] || true;
-  const importStr2 = l10nConfig["import-line"] || "";
-  const keyPrefix2 = l10nConfig["key-prefix"] || "context.l10n.";
-  options = {};
+  options = {
+    ...options,
+    // Preserve existing defaults
+    arbDirName: l10nConfig["arb-dir"] ?? options.arbDirName,
+    templateArbFile: l10nConfig["template-arb-file"] ?? options.templateArbFile,
+    // mainLocaleCode: l10nConfig["main-locale"] ?? options.mainLocaleCode,
+    autoTranslate: l10nConfig["translate"] ?? options.autoTranslate,
+    importStr: l10nConfig["import-line"] ?? options.importStr,
+    keyPrefix: l10nConfig["key-prefix"] ?? options.keyPrefix,
+    autoGenerateKeyName: l10nConfig["auto-name-key"] ?? options.autoGenerateKeyName
+  };
 }
 async function extractToArb(document2, range, text) {
+  setupConfig();
   const editor = vscode2.window.activeTextEditor;
   if (!editor) return;
-  const key = await promptForKey();
-  if (!key) return;
   const value = text.slice(1, -1);
-  setupConfig();
-  const arbWriteSucces = updateArbFiles(
-    arbDirName,
-    key,
-    value,
-    templateArbFile,
-    mainLocaleCode,
-    autoTranslate
-  );
+  const key = options.autoGenerateKeyName ? extractKeyNameFromText(value) : await promptForKey();
+  if (!key) return;
+  const arbWriteSucces = updateArbFiles(key, value);
   if (!arbWriteSucces) return;
-  if (importStr) await addImportIfMissing(document2, editor, importStr);
-  updateEditorText(editor, range, key, keyPrefix);
+  await addImportIfMissing(document2, editor);
+  updateEditorText(editor, range, key);
   vscode2.window.showInformationMessage(`Added "${key}" to app_en.arb`);
 }
-async function addImportIfMissing(document2, editor, importStr2) {
-  if (document2.getText().includes(importStr2)) return;
+async function addImportIfMissing(document2, editor) {
+  const importStr = options.importStr;
+  if (!importStr) return;
+  if (document2.getText().includes(importStr)) return;
   await editor.edit((editBuilder) => {
-    editBuilder.insert(new vscode2.Position(0, 0), importStr2 + "\n");
+    editBuilder.insert(new vscode2.Position(0, 0), importStr + "\n");
   });
 }
 async function promptForKey() {
   return vscode2.window.showInputBox({
     prompt: "Enter localization key name",
-    placeHolder: "titlePage1"
+    placeHolder: "key name"
   });
 }
 function updateFile(filename, key, value) {
@@ -18511,43 +18526,45 @@ function getDeeplApiKey() {
   const config = vscode2.workspace.getConfiguration("flutter");
   return config.get("deeplApiKey");
 }
-async function translateText(text, sourceLang, targetLang) {
+async function translateText(text, targetLang) {
   const authKey = getDeeplApiKey();
   if (!authKey) {
     vscode2.window.showErrorMessage("DeepL API key is missing");
     return text;
   }
   const translator = new deepl.Translator(authKey);
+  targetLang = targetLang.toLowerCase();
+  if (targetLang === "en") targetLang = "en-US";
+  if (targetLang === "pt") targetLang = "pt-PT";
+  if (targetLang === "zh") targetLang = "zh-HANS";
   const result = await translator.translateText(
     text,
-    sourceLang,
+    null,
+    // sourceLang as deepl.SourceLanguageCode,
     targetLang
   );
   return result.text;
 }
-async function updateArbFiles(arbDirName2, key, value, templateArbFileName, mainLocaleCode2, autoTranslate2) {
+async function updateArbFiles(key, value) {
   const workspacePath = vscode2.workspace.workspaceFolders?.[0].uri.fsPath;
-  const arbDirPath = path2.join(workspacePath, arbDirName2);
-  const mainArbFileName = templateArbFileName.replace(
-    "en.arb",
-    mainLocaleCode2 + ".arb"
-  );
+  const arbDirPath = path2.join(workspacePath, options.arbDirName);
   let ok = true;
   const arbFiles = fs2.readdirSync(arbDirPath).filter((f) => f.endsWith(".arb"));
   for (const arbFile of arbFiles) {
     const fullArbPath = path2.join(arbDirPath, arbFile);
-    const val = autoTranslate2 && arbFile !== mainArbFileName ? await translateText(
+    const val = options.autoTranslate && arbFile ? await translateText(
       value,
-      mainLocaleCode2,
+      // options.mainLocaleCode,
       arbFile.split("_")[1].split(".")[0]
+      // lang_en.arb -> en
     ) : value;
     ok = ok && updateFile(fullArbPath, key, val);
   }
   return ok;
 }
-function updateEditorText(editor, range, key, keyPrefix2) {
+function updateEditorText(editor, range, key) {
   editor.edit((editBuilder) => {
-    editBuilder.replace(range, `${keyPrefix2}${key}`);
+    editBuilder.replace(range, `${options.keyPrefix}${key}`);
   });
 }
 

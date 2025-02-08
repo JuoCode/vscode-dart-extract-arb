@@ -21,3 +21,13 @@ export function readL10nConfig(): any | null {
     return null;
   }
 }
+
+export function extractKeyNameFromText(text: string) {
+  return text
+    .toLowerCase()
+    .replaceAll(/[^a-z0-9]+/g, " ") // Replace all non-alphanumeric characters with space
+    .replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) =>
+      index === 0 ? match.toLowerCase() : match.toUpperCase()
+    ) // Convert to camelCase
+    .replace(/\s+/g, ""); // Remove spaces
+}
