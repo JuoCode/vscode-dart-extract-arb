@@ -31,3 +31,14 @@ export function extractKeyNameFromText(text: string) {
     ) // Convert to camelCase
     .replace(/\s+/g, ""); // Remove spaces
 }
+
+export async function runFlutterGenL10n() {
+  const task = new vscode.Task(
+    { type: "shell" },
+    vscode.TaskScope.Workspace,
+    "Generate L10n",
+    "flutter",
+    new vscode.ShellExecution("flutter gen-l10n")
+  );
+  await vscode.tasks.executeTask(task);
+}

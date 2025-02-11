@@ -1,9 +1,13 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
-import * as yaml from "js-yaml";
 import * as deepl from "deepl-node";
-import { extractKeyNameFromText, readL10nConfig } from "./utils";
+
+import {
+  extractKeyNameFromText,
+  readL10nConfig,
+  runFlutterGenL10n,
+} from "./utils";
 
 let options = {
   // flutter options
@@ -15,6 +19,7 @@ let options = {
   keyPrefix: "AppLocalizations.of(context).",
   importStr: "",
   autoGenerateKeyName: false,
+  autoRunGenL10n: true,
 };
 
 // update global object with options
@@ -32,6 +37,7 @@ function setupConfig() {
     keyPrefix: l10nConfig["key-prefix"] ?? options.keyPrefix,
     autoGenerateKeyName:
       l10nConfig["auto-name-key"] ?? options.autoGenerateKeyName,
+    autoRunGenL10n: l10nConfig["generate"] ?? options.autoRunGenL10n,
   };
 }
 
@@ -64,6 +70,8 @@ export async function extractToArb(
 
   // Apply all edits as a single undoable action
   await vscode.workspace.applyEdit(workspaceEdit);
+
+  if (options.autoRunGenL10n) await runFlutterGenL10n();
 
   vscode.window.showInformationMessage(`Added "${key}" to ARB files`);
 }

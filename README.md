@@ -22,7 +22,8 @@ This plugins extends existing options with the following options:
 translate: true                             # Enable translation 
 key-prefix: AppLocalizations.of(context).   # Key prefix for translation
 import-line: ""                             # Import line if needed
-auto-name-key: false                        # Generate keys name 
+auto-name-key: false                        # Generate key name based on text
+generate : true                             # auto run flutter gen-l10n
 ```
 
 For the translation feature to work, you need to add your Deepl API key in vscode settings.json file:

@@ -8,10 +8,12 @@ untranslated-messages-file: untranslated-messages-file.txt
 synthetic-package: false
 output-dir: lib/src/localization/gen_l10n
 
-# Plugin specific configuration
-key-prefix: context.l10n.
-update-all-arb-files: true # The default is false.
-main-locale: en # The default is en.
-auto-translate: true # The default is false.
-# If true must add the following to your vs code's settings.json :
+# Plugin specific configuration: https://github.com/tempo-riz/vscode-dart-extract-arb
+translate: true # Enable translation
+key-prefix: context.t. # Key prefix for translation
+import-line: import 'package:yourAppName/src/localization/l10n_build_context.dart'; # Import line for .l10n
+auto-name-key: true # Generate keys name
+generate: true # flutter gen-l10n
+
+# If translate: true you must add the following to your vs code's settings.json :
 #   "flutter.deeplApiKey": "your-key",

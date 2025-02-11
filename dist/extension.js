@@ -18455,6 +18455,16 @@ function extractKeyNameFromText(text) {
     (match, index) => index === 0 ? match.toLowerCase() : match.toUpperCase()
   ).replace(/\s+/g, "");
 }
+async function runFlutterGenL10n() {
+  const task = new vscode.Task(
+    { type: "shell" },
+    vscode.TaskScope.Workspace,
+    "Generate L10n",
+    "flutter",
+    new vscode.ShellExecution("flutter gen-l10n")
+  );
+  await vscode.tasks.executeTask(task);
+}
 
 // src/action.ts
 var options = {
@@ -18466,7 +18476,8 @@ var options = {
   autoTranslate: true,
   keyPrefix: "AppLocalizations.of(context).",
   importStr: "",
-  autoGenerateKeyName: false
+  autoGenerateKeyName: false,
+  autoRunGenL10n: true
 };
 function setupConfig() {
   const l10nConfig = readL10nConfig();
@@ -18480,7 +18491,8 @@ function setupConfig() {
     autoTranslate: l10nConfig["translate"] ?? options.autoTranslate,
     importStr: l10nConfig["import-line"] ?? options.importStr,
     keyPrefix: l10nConfig["key-prefix"] ?? options.keyPrefix,
-    autoGenerateKeyName: l10nConfig["auto-name-key"] ?? options.autoGenerateKeyName
+    autoGenerateKeyName: l10nConfig["auto-name-key"] ?? options.autoGenerateKeyName,
+    autoRunGenL10n: l10nConfig["generate"] ?? options.autoRunGenL10n
   };
 }
 async function extractToArb(document2, range, text) {
@@ -18496,6 +18508,7 @@ async function extractToArb(document2, range, text) {
   workspaceEdit.replace(document2.uri, range, `${options.keyPrefix}${key}`);
   await addImportIfMissing(document2, workspaceEdit);
   await vscode2.workspace.applyEdit(workspaceEdit);
+  if (options.autoRunGenL10n) await runFlutterGenL10n();
   vscode2.window.showInformationMessage(`Added "${key}" to ARB files`);
 }
 async function addImportIfMissing(document2, editor) {
