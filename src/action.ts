@@ -59,7 +59,7 @@ export async function extractToArb(
 
   if (!key) return;
 
-  const arbWriteSucces = updateArbFiles(key, value);
+  const arbWriteSucces = await updateArbFiles(key, value);
   if (!arbWriteSucces) return;
 
   const workspaceEdit = new vscode.WorkspaceEdit(); // enable Single Undo Action

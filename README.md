@@ -1,6 +1,6 @@
 ## Features
 
-<img src="https://github.com/tempo-riz/vscode-dart-extract-arb/blob/5121888c070524042e2056689b6bfa94765ceefe/assets/speed-demo.gif?raw=true" width="1200"/>
+<img src="https://github.com/tempo-riz/vscode-dart-extract-arb/blob/89a7d4447b51616abc8526a9bea253b1b978506f/assets/demo.gif?raw=true" width="1200"/>
 
 ## This extension adds a single code action : 
 

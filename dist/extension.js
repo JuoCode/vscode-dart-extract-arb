@@ -18450,10 +18450,12 @@ function readL10nConfig() {
   }
 }
 function extractKeyNameFromText(text) {
-  return text.toLowerCase().replaceAll(/[^a-z0-9]+/g, " ").replace(
+  const newText = text.toLowerCase().replaceAll(/[^a-z0-9]+/g, " ").replace(
     /(?:^\w|[A-Z]|\b\w|\s+)/g,
     (match, index) => index === 0 ? match.toLowerCase() : match.toUpperCase()
+    // Convert to camelCase
   ).replace(/\s+/g, "");
+  return newText.charAt(0).toLowerCase() + newText.slice(1);
 }
 async function runFlutterGenL10n() {
   const task = new vscode.Task(
@@ -18502,7 +18504,7 @@ async function extractToArb(document2, range, text) {
   const value = text.slice(1, -1);
   const key = options.autoGenerateKeyName ? extractKeyNameFromText(value) : await promptForKey();
   if (!key) return;
-  const arbWriteSucces = updateArbFiles(key, value);
+  const arbWriteSucces = await updateArbFiles(key, value);
   if (!arbWriteSucces) return;
   const workspaceEdit = new vscode2.WorkspaceEdit();
   workspaceEdit.replace(document2.uri, range, `${options.keyPrefix}${key}`);
