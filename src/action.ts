@@ -56,26 +56,30 @@ export async function extractToArb(
   const arbWriteSucces = updateArbFiles(key, value);
   if (!arbWriteSucces) return;
 
-  await addImportIfMissing(document, editor);
+  const workspaceEdit = new vscode.WorkspaceEdit(); // enable Single Undo Action
 
-  updateEditorText(editor, range, key);
-  vscode.window.showInformationMessage(`Added "${key}" to app_en.arb`);
+  workspaceEdit.replace(document.uri, range, `${options.keyPrefix}${key}`);
+
+  await addImportIfMissing(document, workspaceEdit);
+
+  // Apply all edits as a single undoable action
+  await vscode.workspace.applyEdit(workspaceEdit);
+
+  vscode.window.showInformationMessage(`Added "${key}" to ARB files`);
 }
 
 async function addImportIfMissing(
   document: vscode.TextDocument,
-  editor: vscode.TextEditor
+  editor: vscode.WorkspaceEdit
 ) {
-  const importStr = options.importStr;
+  const importStr = options.importStr.trim().replace(/^['"]+|['"]+$/g, ""); // Remove quotes if any
   if (!importStr) return;
 
   // Check if the import already exists
   if (document.getText().includes(importStr)) return;
 
   // Insert at the top of the file
-  await editor.edit((editBuilder) => {
-    editBuilder.insert(new vscode.Position(0, 0), importStr + "\n");
-  });
+  editor.insert(document.uri, new vscode.Position(0, 0), importStr + "\n");
 }
 
 async function promptForKey(): Promise<string | undefined> {
@@ -163,14 +167,4 @@ async function updateArbFiles(key: string, value: string): Promise<boolean> {
     ok = ok && updateFile(fullArbPath, key, val);
   }
   return ok;
-}
-
-function updateEditorText(
-  editor: vscode.TextEditor,
-  range: vscode.Range,
-  key: string
-): void {
-  editor.edit((editBuilder) => {
-    editBuilder.replace(range, `${options.keyPrefix}${key}`);
-  });
 }
