@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.2.0
+- added key-name-language option (default: en)
+- auto-name-key now defaults to true
+
 ## 2.1.0
 - added generate options : auto run flutter gen-l10n
 - fix issue with import line

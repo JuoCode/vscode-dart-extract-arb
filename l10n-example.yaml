@@ -1,4 +1,4 @@
-arb-dir: lib/src/localization # The default is lib/l10n.
+arb-dir: lib/l10n # The default is lib/l10n.
 template-arb-file: app_en.arb # The default is app_en.arb.
 output-localization-file: app_localizations.dart # The default is app_localizations.dart.
 nullable-getter: false
@@ -6,14 +6,16 @@ untranslated-messages-file: untranslated-messages-file.txt
 
 # explicitely generate the file to avoid: couldn't resolve the package 'flutter_gen'
 synthetic-package: false
-output-dir: lib/src/localization/gen_l10n
+output-dir: lib/l10n/gen_l10n
 
-# Plugin specific configuration: https://github.com/tempo-riz/vscode-dart-extract-arb
-translate: true # Enable translation
-key-prefix: context.t. # Key prefix for translation
-import-line: import 'package:yourAppName/src/localization/l10n_build_context.dart'; # Import line for .l10n
-auto-name-key: true # Generate keys name
-generate: true # flutter gen-l10n
+# This is my recommended configuration for the extension (!= from the default configuration)
+# extension specific configuration: https://github.com/tempo-riz/vscode-dart-extract-arb
+translate: true                             # Enable translation 
+generate : true                             # auto run flutter gen-l10n
+key-prefix: AppLocalizations.of(context).   # Key prefix for translation
+auto-name-key: true                         # Generate key name based on text
+key-name-language: en                       # Language to use for key name
+import-line: "import 'package:...dart';"    # Import line if needed
 
 # If translate: true you must add the following to your vs code's settings.json :
 #   "flutter.deeplApiKey": "your-key",

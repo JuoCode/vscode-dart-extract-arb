@@ -18,8 +18,9 @@ let options = {
   autoTranslate: true,
   keyPrefix: "AppLocalizations.of(context).",
   importStr: "",
-  autoGenerateKeyName: false,
+  autoGenerateKeyName: true,
   autoRunGenL10n: true,
+  keyNameLanguage: "en",
 };
 
 // update global object with options
@@ -38,6 +39,7 @@ function setupConfig() {
     autoGenerateKeyName:
       l10nConfig["auto-name-key"] ?? options.autoGenerateKeyName,
     autoRunGenL10n: l10nConfig["generate"] ?? options.autoRunGenL10n,
+    keyNameLanguage: l10nConfig["key-name-language"] ?? options.keyNameLanguage,
   };
 }
 
@@ -54,7 +56,9 @@ export async function extractToArb(
   const value = text.slice(1, -1); // Remove quotes from the string literal : "text" -> text
 
   const key = options.autoGenerateKeyName
-    ? extractKeyNameFromText(value)
+    ? extractKeyNameFromText(
+        await translateText(value, options.keyNameLanguage)
+      )
     : await promptForKey();
 
   if (!key) return;

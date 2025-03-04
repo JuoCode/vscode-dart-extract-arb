@@ -1,3 +1,5 @@
+Download the extension from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=zealousFoundry.flutter-extract-to-arb) or the [Open VSX Registry](https://open-vsx.org/extension/ZealousFoundry/flutter-extract-to-arb)
+
 ## Features
 
 <img src="https://github.com/tempo-riz/vscode-dart-extract-arb/blob/89a7d4447b51616abc8526a9bea253b1b978506f/assets/demo.gif?raw=true" width="1200"/>
@@ -14,16 +16,17 @@ Extract selected text, prompt for a key, add it to the ARB file, and translate i
 You should already have a l10n.yaml file in your project. If not, create one.
 it uses flutter's official options for internationalization. see [here](https://docs.flutter.dev/ui/accessibility-and-internationalization/internationalization#configuring-the-l10n-yaml-file)
 
-This plugins extends existing options with the following options:
+This extension extends existing options with the following options:
 
 ### Options with default values
 ```yaml
-# l10n.yaml (plugin specific options)
+# l10n.yaml (extension specific options)
 translate: true                             # Enable translation 
-key-prefix: AppLocalizations.of(context).   # Key prefix for translation
-import-line: ""                             # Import line if needed
-auto-name-key: false                        # Generate key name based on text
 generate : true                             # auto run flutter gen-l10n
+key-prefix: AppLocalizations.of(context).   # Key prefix for translation
+auto-name-key: true                         # Generate key name based on text
+key-name-language: en                       # Language to use for key name
+import-line: ""                             # Import line if needed
 ```
 
 For the translation feature to work, you need to add your Deepl API key in vscode settings.json file:
@@ -40,3 +43,30 @@ Download the extension from the [Visual Studio Marketplace](https://marketplace.
 
 
 If you want to add a feature or file a bug, please open an issue/PR on the [GitHub repository](https://github.com/tempo-riz/vscode-dart-extract-arb)
+
+## Pro tips
+You can define an extension getter to access your translations more concisely:
+```dart
+extension ContextExt on BuildContext {
+  AppLocalizations get t => AppLocalizations.of(this);
+}
+
+// then instead of this
+Text(AppLocalizations.of(context).yourKey)
+
+// use it like this:
+Text(context.t.yourKey)
+```
+Don't forget to update the `key-prefix` & `import-line` options in l10n.yaml ;)
+
+## Changelog
+You can find it [here](https://github.com/tempo-riz/vscode-dart-extract-arb/blob/main/CHANGELOG.md)
+
+I try to follow Semantic Versioning:
+- Major: Breaking changes
+- Minor: New features, but backward-compatible
+- Patch: Bug fixes
+
+## Support
+
+If you'd like to support this project, consider contributing [here](https://github.com/sponsors/tempo-riz). Thank you! :)
