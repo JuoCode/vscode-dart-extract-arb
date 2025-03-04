@@ -8,8 +8,7 @@ Download the extension from the [Visual Studio Marketplace](https://marketplace.
 
 ### `Extract String to ARB`
 
-Extract selected text, prompt for a key, add it to the ARB file, and translate it with DeepL for other ARB files.
-
+Extract selected text, prompt for a key or infer from text, update ARB files with DeepL translations, generate dart code, and replace hardcoded strings with the generated key.
 
 ## Quick Setup
 
