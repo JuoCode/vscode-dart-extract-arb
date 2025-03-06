@@ -1,5 +1,12 @@
 Download the extension from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=zealousFoundry.flutter-extract-to-arb) or the [Open VSX Registry](https://open-vsx.org/extension/ZealousFoundry/flutter-extract-to-arb)
 
+[![Visual Studio Marketplace Downloads](https://img.shields.io/visual-studio-marketplace/d/zealousFoundry.flutter-extract-to-arb)](https://marketplace.visualstudio.com/items?itemName=zealousFoundry.flutter-extract-to-arb)
+[![Visual Studio Marketplace Rating](https://img.shields.io/visual-studio-marketplace/stars/zealousFoundry.flutter-extract-to-arb)](https://marketplace.visualstudio.com/items?itemName=zealousFoundry.flutter-extract-to-arb)
+[![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/zealousFoundry.flutter-extract-to-arb)](https://marketplace.visualstudio.com/items?itemName=zealousFoundry.flutter-extract-to-arb)
+
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/M4M71BK1YJ)
+
 ## Features
 
 <img src="https://github.com/tempo-riz/vscode-dart-extract-arb/blob/89a7d4447b51616abc8526a9bea253b1b978506f/assets/demo.gif?raw=true" width="1200"/>
