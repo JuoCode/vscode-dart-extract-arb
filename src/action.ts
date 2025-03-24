@@ -28,7 +28,7 @@ let options: Options = {
   autoTranslate: true,
   keyPrefix: "AppLocalizations.of(context)!.",
   importStr: "",
-  autoGenerateKeyName: "ask",
+  autoGenerateKeyName: true,
   autoRunGenL10n: true,
   keyNameLanguage: "en",
 };
@@ -159,7 +159,10 @@ async function translateText(
 ): Promise<string> {
   const authKey = getDeeplApiKey();
   if (!authKey) {
-    vscode.window.showErrorMessage("DeepL API key is missing");
+    if (options.autoTranslate) {
+      // show error only if autoTranslate is enabled
+      vscode.window.showErrorMessage("DeepL API key is missing");
+    }
     return text;
   }
   const translator = new deepl.Translator(authKey);

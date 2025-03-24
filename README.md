@@ -39,7 +39,7 @@ key-prefix: AppLocalizations.of(context)!.
 
 # Generate key name 
 # "ask" : prompt with pre-filled text | true : infer from text | false : prompt  
-auto-name-key: "ask"       
+auto-name-key: true       
 
 # Language to use for key name                  
 key-name-language: en       
