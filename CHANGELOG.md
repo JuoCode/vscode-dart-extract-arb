@@ -1,5 +1,12 @@
 # Change Log
 
+## 2.3.0
+- added `auto-name-key: "ask"` option to prompt with pre-filled text
+- don't show error "missing key" if `translate: false`
+- add ! to default key-prefix if `nullable-getter: true`
+- update docs
+thanks @PapyElGringo for the issues :)
+
 ## 2.2.0
 - added key-name-language option (default: en)
 - auto-name-key now defaults to true
