@@ -27,15 +27,25 @@ This extension extends existing options with the following options:
 ### Options with default values
 ```yaml
 # l10n.yaml (extension specific options)
-translate: true                             # Enable translation 
-key-prefix: AppLocalizations.of(context)!.   # Key prefix for translation
-import-line: ""                             # Import line if needed
-auto-name-key: false                        # Generate key name based on text
-generate : true                             # auto run flutter gen-l10n
-key-prefix: AppLocalizations.of(context).   # Key prefix for translation
-auto-name-key: true                         # Generate key name based on text
-key-name-language: en                       # Language to use for key name
-import-line: ""                             # Import line if needed
+
+# Enable translation 
+translate: true              
+
+# Auto run flutter gen-l10n               
+generate : true       
+
+# Key prefix for translation             
+key-prefix: AppLocalizations.of(context)!.  
+
+# Generate key name 
+# "ask" : prompt with pre-filled text | true : infer from text | false : prompt  
+auto-name-key: "ask"       
+
+# Language to use for key name                  
+key-name-language: en       
+
+# Import line if needed                
+import-line: ""                             
 ```
 
 For the translation feature to work, you need to add your Deepl API key in vscode settings.json file:

@@ -9,16 +9,26 @@ import {
   runFlutterGenL10n,
 } from "./utils";
 
-let options = {
+interface Options {
+  arbDirName: string;
+  templateArbFile: string;
+  autoTranslate: boolean;
+  keyPrefix: string;
+  importStr: string;
+  autoGenerateKeyName: boolean | string;
+  autoRunGenL10n: boolean;
+  keyNameLanguage: string;
+}
+
+let options: Options = {
   // flutter options
   arbDirName: "lib/l10n",
   templateArbFile: "app_en.arb",
   // package specific options
-  // mainLocaleCode: "en",
   autoTranslate: true,
   keyPrefix: "AppLocalizations.of(context)!.",
   importStr: "",
-  autoGenerateKeyName: true,
+  autoGenerateKeyName: "ask",
   autoRunGenL10n: true,
   keyNameLanguage: "en",
 };
@@ -28,19 +38,39 @@ function setupConfig() {
   const l10nConfig = readL10nConfig();
   if (!l10nConfig) return;
 
+  const nullableGetter = l10nConfig["nullable-getter"] ?? true; // nullable by default
+
+  const defaultKeyPrefix = nullableGetter
+    ? "AppLocalizations.of(context)!."
+    : "AppLocalizations.of(context).";
+
   options = {
     ...options, // Preserve existing defaults
     arbDirName: l10nConfig["arb-dir"] ?? options.arbDirName,
     templateArbFile: l10nConfig["template-arb-file"] ?? options.templateArbFile,
-    // mainLocaleCode: l10nConfig["main-locale"] ?? options.mainLocaleCode,
     autoTranslate: l10nConfig["translate"] ?? options.autoTranslate,
     importStr: l10nConfig["import-line"] ?? options.importStr,
-    keyPrefix: l10nConfig["key-prefix"] ?? options.keyPrefix,
+    keyPrefix: l10nConfig["key-prefix"] ?? defaultKeyPrefix,
     autoGenerateKeyName:
       l10nConfig["auto-name-key"] ?? options.autoGenerateKeyName,
     autoRunGenL10n: l10nConfig["generate"] ?? options.autoRunGenL10n,
     keyNameLanguage: l10nConfig["key-name-language"] ?? options.keyNameLanguage,
   };
+}
+
+async function getKey(text: string) {
+  if (options.autoGenerateKeyName === "ask")
+    return await promptForKey(
+      extractKeyNameFromText(await translateText(text, options.keyNameLanguage))
+    );
+
+  if (options.autoGenerateKeyName === true)
+    return extractKeyNameFromText(
+      await translateText(text, options.keyNameLanguage)
+    );
+
+  // false -> simple prompt
+  return await promptForKey();
 }
 
 export async function extractToArb(
@@ -55,11 +85,7 @@ export async function extractToArb(
 
   const value = text.slice(1, -1); // Remove quotes from the string literal : "text" -> text
 
-  const key = options.autoGenerateKeyName
-    ? extractKeyNameFromText(
-        await translateText(value, options.keyNameLanguage)
-      )
-    : await promptForKey();
+  const key = await getKey(value);
 
   if (!key) return;
 
@@ -94,10 +120,13 @@ async function addImportIfMissing(
   editor.insert(document.uri, new vscode.Position(0, 0), importStr + "\n");
 }
 
-async function promptForKey(): Promise<string | undefined> {
+async function promptForKey(
+  defaultValue?: string
+): Promise<string | undefined> {
   return vscode.window.showInputBox({
     prompt: "Enter localization key name",
     placeHolder: "key name",
+    value: defaultValue,
   });
 }
 
