@@ -28,6 +28,9 @@ This extension extends existing options with the following options:
 ```yaml
 # l10n.yaml (extension specific options)
 translate: true                             # Enable translation 
+key-prefix: AppLocalizations.of(context)!.   # Key prefix for translation
+import-line: ""                             # Import line if needed
+auto-name-key: false                        # Generate key name based on text
 generate : true                             # auto run flutter gen-l10n
 key-prefix: AppLocalizations.of(context).   # Key prefix for translation
 auto-name-key: true                         # Generate key name based on text

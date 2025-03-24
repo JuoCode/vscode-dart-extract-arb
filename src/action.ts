@@ -16,7 +16,7 @@ let options = {
   // package specific options
   // mainLocaleCode: "en",
   autoTranslate: true,
-  keyPrefix: "AppLocalizations.of(context).",
+  keyPrefix: "AppLocalizations.of(context)!.",
   importStr: "",
   autoGenerateKeyName: true,
   autoRunGenL10n: true,
