@@ -1,11 +1,15 @@
 Download the extension from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=zealousFoundry.flutter-extract-to-arb) or the [Open VSX Registry](https://open-vsx.org/extension/ZealousFoundry/flutter-extract-to-arb)
 
-[![Visual Studio Marketplace Downloads](https://img.shields.io/visual-studio-marketplace/d/zealousFoundry.flutter-extract-to-arb)](https://marketplace.visualstudio.com/items?itemName=zealousFoundry.flutter-extract-to-arb)
-[![Visual Studio Marketplace Rating](https://img.shields.io/visual-studio-marketplace/stars/zealousFoundry.flutter-extract-to-arb)](https://marketplace.visualstudio.com/items?itemName=zealousFoundry.flutter-extract-to-arb)
-[![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/zealousFoundry.flutter-extract-to-arb)](https://marketplace.visualstudio.com/items?itemName=zealousFoundry.flutter-extract-to-arb)
+[![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/zealousFoundry.flutter-extract-to-arb?label=Version)](https://marketplace.visualstudio.com/items?itemName=zealousFoundry.flutter-extract-to-arb)
+[![Visual Studio Marketplace Downloads](https://img.shields.io/visual-studio-marketplace/d/zealousFoundry.flutter-extract-to-arb?label=VS%20Marketplace%20Downloads)](https://marketplace.visualstudio.com/items?itemName=zealousFoundry.flutter-extract-to-arb)
+[![Open VSX Downloads](https://img.shields.io/open-vsx/dt/zealousfoundry/flutter-extract-to-arb?label=Open%20VSX%20Downloads)](https://open-vsx.org/extension/ZealousFoundry/flutter-extract-to-arb)
 
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/M4M71BK1YJ)
+
+
+<a href="https://ko-fi.com/M4M71BK1YJ">
+<img src="https://github.com/tempo-riz/vscode-dart-extract-arb/blob/8561538ea208f424c5e3473a2fefee5ba9820bf8/assets/ko-fi.png?raw=true" height="40"/>
+</a>
 
 ## Features
 
