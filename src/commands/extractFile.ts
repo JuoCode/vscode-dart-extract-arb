@@ -77,14 +77,12 @@ export async function extractAllTextsInFile() {
         return;
       }
 
+      await addImportIfMissing(document, workspaceEdit);
       const applySuccess = await vscode.workspace.applyEdit(workspaceEdit);
       if (!applySuccess) {
         vscode.window.showErrorMessage("Failed to apply text replacements.");
         return;
       }
-
-      await addImportIfMissing(document, workspaceEdit);
-      await vscode.workspace.applyEdit(workspaceEdit);
 
       const updateSuccess = await updateArbFilesBatch(arbUpdates);
       if (!updateSuccess) {
