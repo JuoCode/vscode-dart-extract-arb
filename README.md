@@ -10,14 +10,12 @@ Download the extension from the [Visual Studio Marketplace](https://marketplace.
 <img src="https://github.com/tempo-riz/vscode-dart-extract-arb/blob/8561538ea208f424c5e3473a2fefee5ba9820bf8/assets/ko-fi.png?raw=true" height="40"/>
 </a>
 
-
-<img src="https://github.com/tempo-riz/vscode-dart-extract-arb/blob/89a7d4447b51616abc8526a9bea253b1b978506f/assets/demo.gif?raw=true" width="1000"/>
-<img src="https://github.com/tempo-riz/vscode-dart-extract-arb/blob/89a7d4447b51616abc8526a9bea253b1b978506f/assets/demo.gif?raw=true" width="1000"/>
-
 ## 💡 Code Action
 
 **Extract String to ARB**
   Right-click a string (or quick fix it with `⌘.` / `Ctrl+.`) and select "Extract String to ARB".
+
+<img src="https://github.com/tempo-riz/vscode-dart-extract-arb/blob/89a7d4447b51616abc8526a9bea253b1b978506f/assets/demo.gif?raw=true" width="1000"/>
 
 ## 🛠️ Commands
 
@@ -28,7 +26,8 @@ Access these from the Command Palette (`⇧⌘P` / `Ctrl+Shift+P`):
 
 * **Extract Texts (Project)**
   Extracts all `Text()` widget strings from the `lib/` folder to your ARB files.
-
+  
+<img src="https://github.com/tempo-riz/vscode-dart-extract-arb/blob/0fc078428e02d9e2ea8b665138ac4b73c7a590a9/assets/demo2.gif?raw=true" width="1000"/>
 
 
 ## ⚡ Quick Setup
