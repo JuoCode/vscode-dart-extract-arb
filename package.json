@@ -45,11 +45,11 @@
     "commands": [
       {
         "command": "flutter.extractAllTextsInFileToArb",
-        "title": "Extract All Text() Strings to ARB in Current File"
+        "title": "Extract Text Widget Strings to ARB (Current File)"
       },
       {
         "command": "flutter.extractAllTextsInProjectToArb",
-        "title": "Extract All Text() Strings to ARB in Workspace"
+        "title": "Extract Text Widget Strings to ARB (Project)"
       }
     ]
   },
