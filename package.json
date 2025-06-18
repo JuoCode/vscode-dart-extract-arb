@@ -42,7 +42,16 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": []
+    "commands": [
+      {
+        "command": "flutter.extractAllTextsInFileToArb",
+        "title": "Extract All Text() Strings to ARB in Current File"
+      },
+      {
+        "command": "flutter.extractAllTextsInProjectToArb",
+        "title": "Extract All Text() Strings to ARB in Workspace"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

@@ -1,79 +1,11 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
-import * as deepl from "deepl-node";
 
-import {
-  extractKeyNameFromText,
-  readL10nConfig,
-  runFlutterGenL10n,
-} from "./utils";
+import { getKey, runFlutterGenL10n, translateText } from "./utils";
+import { options, setupConfig } from "./options";
 
-interface Options {
-  arbDirName: string;
-  templateArbFile: string;
-  autoTranslate: boolean;
-  keyPrefix: string;
-  importStr: string;
-  autoGenerateKeyName: boolean | string;
-  autoRunGenL10n: boolean;
-  keyNameLanguage: string;
-}
-
-let options: Options = {
-  // flutter options
-  arbDirName: "lib/l10n",
-  templateArbFile: "app_en.arb",
-  // package specific options
-  autoTranslate: true,
-  keyPrefix: "AppLocalizations.of(context)!.",
-  importStr: "",
-  autoGenerateKeyName: true,
-  autoRunGenL10n: true,
-  keyNameLanguage: "en",
-};
-
-// update global object with options
-function setupConfig() {
-  const l10nConfig = readL10nConfig();
-  if (!l10nConfig) return;
-
-  const nullableGetter = l10nConfig["nullable-getter"] ?? true; // nullable by default
-
-  const defaultKeyPrefix = nullableGetter
-    ? "AppLocalizations.of(context)!."
-    : "AppLocalizations.of(context).";
-
-  options = {
-    ...options, // Preserve existing defaults
-    arbDirName: l10nConfig["arb-dir"] ?? options.arbDirName,
-    templateArbFile: l10nConfig["template-arb-file"] ?? options.templateArbFile,
-    autoTranslate: l10nConfig["translate"] ?? options.autoTranslate,
-    importStr: l10nConfig["import-line"] ?? options.importStr,
-    keyPrefix: l10nConfig["key-prefix"] ?? defaultKeyPrefix,
-    autoGenerateKeyName:
-      l10nConfig["auto-name-key"] ?? options.autoGenerateKeyName,
-    autoRunGenL10n: l10nConfig["generate"] ?? options.autoRunGenL10n,
-    keyNameLanguage: l10nConfig["key-name-language"] ?? options.keyNameLanguage,
-  };
-}
-
-async function getKey(text: string) {
-  if (options.autoGenerateKeyName === "ask")
-    return await promptForKey(
-      extractKeyNameFromText(await translateText(text, options.keyNameLanguage))
-    );
-
-  if (options.autoGenerateKeyName === true)
-    return extractKeyNameFromText(
-      await translateText(text, options.keyNameLanguage)
-    );
-
-  // false -> simple prompt
-  return await promptForKey();
-}
-
-export async function extractToArb(
+export async function extractStringToArb(
   document: vscode.TextDocument,
   range: vscode.Range,
   text: string
@@ -85,7 +17,7 @@ export async function extractToArb(
 
   const value = text.slice(1, -1); // Remove quotes from the string literal : "text" -> text
 
-  const key = await getKey(value);
+  const key = await getKey(value); // Prompt or infer key name
 
   if (!key) return;
 
@@ -120,16 +52,6 @@ async function addImportIfMissing(
   editor.insert(document.uri, new vscode.Position(0, 0), importStr + "\n");
 }
 
-async function promptForKey(
-  defaultValue?: string
-): Promise<string | undefined> {
-  return vscode.window.showInputBox({
-    prompt: "Enter localization key name",
-    placeHolder: "key name",
-    value: defaultValue,
-  });
-}
-
 function updateFile(filename: string, key: string, value: string) {
   try {
     let arbContent = fs.existsSync(filename)
@@ -144,42 +66,6 @@ function updateFile(filename: string, key: string, value: string) {
     vscode.window.showErrorMessage(`Failed to update ARB file: ${error}`);
     return false;
   }
-}
-
-//  "flutter.deeplApiKey": "your-deepl-api-key-here"
-export function getDeeplApiKey(): string | undefined {
-  const config = vscode.workspace.getConfiguration("flutter");
-  return config.get<string>("deeplApiKey");
-}
-
-async function translateText(
-  text: string,
-  // sourceLang: string,
-  targetLang: string
-): Promise<string> {
-  const authKey = getDeeplApiKey();
-  if (!authKey) {
-    if (options.autoTranslate) {
-      // show error only if autoTranslate is enabled
-      vscode.window.showErrorMessage("DeepL API key is missing");
-    }
-    return text;
-  }
-  const translator = new deepl.Translator(authKey);
-
-  // https://developers.deepl.com/docs/resources/supported-languages
-  targetLang = targetLang.toLowerCase();
-  if (targetLang === "en") targetLang = "en-US";
-  if (targetLang === "pt") targetLang = "pt-PT";
-  if (targetLang === "zh") targetLang = "zh-HANS";
-
-  const result = await translator.translateText(
-    text,
-    null, // sourceLang as deepl.SourceLanguageCode,
-    targetLang as deepl.TargetLanguageCode
-  );
-
-  return result.text;
 }
 
 async function updateArbFiles(key: string, value: string): Promise<boolean> {
