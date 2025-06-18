@@ -26,7 +26,7 @@ export async function extractAllTextsInFile() {
   await vscode.window.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
-      title: "Extracting strings to ARB",
+      title: `Extracting to ARB`,
       cancellable: false,
     },
     async (progress) => {
@@ -56,7 +56,7 @@ export async function extractAllTextsInFile() {
         );
 
         progress.report({
-          message: `Extracting: "${innerText}" (${total - i}/${total})`,
+          message: `(${total - i}/${total}) Extracting: "${innerText}" `,
           increment: (1 / total) * 100,
         });
 

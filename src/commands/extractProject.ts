@@ -20,7 +20,7 @@ export async function extractAllTextsInProject() {
   await vscode.window.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
-      title: "Extracting all Text() strings in workspace",
+      title: "Extracting to ARB",
       cancellable: false,
     },
     async (progress) => {
@@ -33,9 +33,9 @@ export async function extractAllTextsInProject() {
       for (const fileUri of dartFiles) {
         fileCount++;
         progress.report({
-          message: `Processing ${path.basename(fileUri.fsPath)} (${fileCount}/${
+          message: `(${fileCount}/${
             dartFiles.length
-          })`,
+          }) Processing ${path.basename(fileUri.fsPath)} `,
         });
 
         const document = await vscode.workspace.openTextDocument(fileUri);
