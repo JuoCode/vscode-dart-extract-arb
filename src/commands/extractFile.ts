@@ -2,7 +2,14 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
 import { options, setupConfig } from "../options";
-import { getKey, runFlutterGenL10n, translateTextBatch } from "../utils";
+import {
+  addImportIfMissing,
+  chunkArray,
+  getKey,
+  runFlutterGenL10n,
+  translateTextBatch,
+} from "../utils";
+import { updateArbFilesBatch } from "../files";
 
 export async function extractAllTextsInFile() {
   setupConfig();
@@ -42,6 +49,11 @@ export async function extractAllTextsInFile() {
 
         if (!innerText.trim()) continue;
 
+        const line = document
+          .lineAt(document.positionAt(match.index!).line)
+          .text.trim();
+        if (line.startsWith("//")) continue;
+
         const literal = `${quoteChar}${innerText}${quoteChar}`;
         const stringStart = match.index! + match[0].indexOf(literal);
         const stringEnd = stringStart + literal.length;
@@ -67,6 +79,12 @@ export async function extractAllTextsInFile() {
         arbUpdates[key] = innerText;
       }
 
+      //   if no changes were made
+      if (Object.keys(arbUpdates).length === 0) {
+        vscode.window.showInformationMessage("No strings to extract.");
+        return;
+      }
+
       const applySuccess = await vscode.workspace.applyEdit(workspaceEdit);
       if (!applySuccess) {
         vscode.window.showErrorMessage("Failed to apply text replacements.");
@@ -89,76 +107,4 @@ export async function extractAllTextsInFile() {
       );
     }
   );
-}
-
-async function addImportIfMissing(
-  document: vscode.TextDocument,
-  editor: vscode.WorkspaceEdit
-) {
-  const importStr = options.importStr.trim().replace(/^['"]+|['"]+$/g, "");
-  if (!importStr) return;
-
-  if (document.getText().includes(importStr)) return;
-
-  editor.insert(document.uri, new vscode.Position(0, 0), importStr + "\n");
-}
-
-function chunkArray<T>(arr: T[], chunkSize: number): T[][] {
-  const chunks: T[][] = [];
-  for (let i = 0; i < arr.length; i += chunkSize) {
-    chunks.push(arr.slice(i, i + chunkSize));
-  }
-  return chunks;
-}
-
-async function updateArbFilesBatch(
-  keyValues: Record<string, string>
-): Promise<boolean> {
-  const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath!;
-  const arbDirPath = path.join(workspacePath, options.arbDirName);
-
-  try {
-    const arbFiles = fs
-      .readdirSync(arbDirPath)
-      .filter((f) => f.endsWith(".arb"));
-
-    for (const arbFile of arbFiles) {
-      const fullArbPath = path.join(arbDirPath, arbFile);
-      let arbContent = fs.existsSync(fullArbPath)
-        ? fs.readFileSync(fullArbPath, "utf8")
-        : "{}";
-      const arbJson = JSON.parse(arbContent);
-
-      const targetLang = arbFile.split("_")[1].split(".")[0];
-
-      const keys = Object.keys(keyValues);
-      const texts = Object.values(keyValues);
-
-      // chunk size, adjust as needed based on rate limits and payload size
-      const chunkSize = 50;
-
-      const keyChunks = chunkArray(keys, chunkSize);
-      const textChunks = chunkArray(texts, chunkSize);
-
-      for (let i = 0; i < keyChunks.length; i++) {
-        let translations: string[] = [];
-
-        if (options.autoTranslate && arbFile) {
-          translations = await translateTextBatch(textChunks[i], targetLang);
-        } else {
-          translations = textChunks[i];
-        }
-
-        translations.forEach((translatedValue, idx) => {
-          arbJson[keyChunks[i][idx]] = translatedValue;
-        });
-      }
-
-      fs.writeFileSync(fullArbPath, JSON.stringify(arbJson, null, 2), "utf8");
-    }
-    return true;
-  } catch (error) {
-    vscode.window.showErrorMessage(`Failed to update ARB files: ${error}`);
-    return false;
-  }
 }

@@ -124,3 +124,25 @@ export async function getKey(text: string) {
   // false -> simple prompt
   return await promptForKey();
 }
+
+export function chunkArray<T>(array: T[], size: number): T[][] {
+  const result: T[][] = [];
+  for (let i = 0; i < array.length; i += size) {
+    result.push(array.slice(i, i + size));
+  }
+  return result;
+}
+
+export async function addImportIfMissing(
+  document: vscode.TextDocument,
+  editor: vscode.WorkspaceEdit
+) {
+  const importStr = options.importStr.trim().replace(/^['"]+|['"]+$/g, ""); // Remove quotes if any
+  if (!importStr) return;
+
+  // Check if the import already exists
+  if (document.getText().includes(importStr)) return;
+
+  // Insert at the top of the file
+  editor.insert(document.uri, new vscode.Position(0, 0), importStr + "\n");
+}

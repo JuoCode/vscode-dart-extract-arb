@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { isStringLiteral } from "./utils";
+import { isStringLiteral } from "../utils";
 
 export class ExtractToArbProvider implements vscode.CodeActionProvider {
   provideCodeActions(

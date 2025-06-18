@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
-import { ExtractToArbProvider } from "./codeActionProvider";
-import { extractStringToArb } from "./action";
+import { ExtractToArbProvider } from "./commands/codeActionProvider";
+import { extractStringToArb } from "./commands/action";
 import { extractAllTextsInFile } from "./commands/extractFile";
+import { extractAllTextsInProject } from "./commands/extractProject";
 
 export function activate(context: vscode.ExtensionContext) {
   // Code Action Provider
@@ -26,11 +27,11 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(fileExtractCommand);
 
   // Command: Extract all in workspace
-  // const projectExtractCommand = vscode.commands.registerCommand(
-  //   "flutter.extractAllTextsInProjectToArb",
-  //   extractAllTextsInProject
-  // );
-  // context.subscriptions.push(projectExtractCommand);
+  const projectExtractCommand = vscode.commands.registerCommand(
+    "flutter.extractAllTextsInProjectToArb",
+    extractAllTextsInProject
+  );
+  context.subscriptions.push(projectExtractCommand);
 }
 
 export function deactivate() {}
