@@ -1,7 +1,6 @@
 # Change Log
 
-## 2.4.0
-
+## 2.4.1
 - added new commands to extract all `Text()` widget strings from current file or entire `lib/` folder
 - updated docs and README with new commands and features
 

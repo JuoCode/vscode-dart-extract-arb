@@ -26,8 +26,8 @@ Access these from the Command Palette (`⇧⌘P` / `Ctrl+Shift+P`):
 
 * **Extract Texts (Project)**
   Extracts all `Text()` widget strings from the `lib/` folder to your ARB files.
-  
-<img src="https://github.com/tempo-riz/vscode-dart-extract-arb/blob/0fc078428e02d9e2ea8b665138ac4b73c7a590a9/assets/demo2.gif?raw=true" width="1000"/>
+
+<img src="https://github.com/tempo-riz/vscode-dart-extract-arb/blob/69c42d896b15b1dd04ba1d31efabba7b950d558a/assets/demo2.gif?raw=true" width="1000"/>
 
 
 ## ⚡ Quick Setup
