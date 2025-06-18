@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
 import { options, setupConfig } from "../options";
-import { getKey, runFlutterGenL10n, translateText } from "../utils";
+import { getKey, runFlutterGenL10n, translateTextBatch } from "../utils";
 
 export async function extractAllTextsInFile() {
   setupConfig();
@@ -16,9 +16,7 @@ export async function extractAllTextsInFile() {
   const document = editor.document;
   const text = document.getText();
 
-  // Regex to match Text("...") or Text('...') without interpolations or escaped quotes
   const regex = /Text\s*\(\s*(['"])([^$\\]*?)\1\s*[\),]/g;
-
   const matches = [...text.matchAll(regex)];
 
   if (matches.length === 0) {
@@ -26,63 +24,70 @@ export async function extractAllTextsInFile() {
     return;
   }
 
-  // We'll accumulate all replacements in this WorkspaceEdit
-  const workspaceEdit = new vscode.WorkspaceEdit();
+  await vscode.window.withProgress(
+    {
+      location: vscode.ProgressLocation.Notification,
+      title: "Extracting strings to ARB",
+      cancellable: false,
+    },
+    async (progress) => {
+      const workspaceEdit = new vscode.WorkspaceEdit();
+      const arbUpdates: Record<string, string> = {};
+      const total = matches.length;
 
-  // Collect keys & values for ARB update (key -> value)
-  const arbUpdates: Record<string, string> = {};
+      for (let i = total - 1; i >= 0; i--) {
+        const match = matches[i];
+        const quoteChar = match[1];
+        const innerText = match[2];
 
-  // Iterate matches in reverse to avoid messing offsets on replacement
-  for (const match of matches.reverse()) {
-    const quoteChar = match[1]; // ' or "
-    const innerText = match[2]; // The string inside Text()
+        if (!innerText.trim()) continue;
 
-    if (!innerText.trim()) continue; // skip empty strings
+        const literal = `${quoteChar}${innerText}${quoteChar}`;
+        const stringStart = match.index! + match[0].indexOf(literal);
+        const stringEnd = stringStart + literal.length;
 
-    const literal = `${quoteChar}${innerText}${quoteChar}`;
+        const range = new vscode.Range(
+          document.positionAt(stringStart),
+          document.positionAt(stringEnd)
+        );
 
-    // Calculate range of the string literal inside the document
-    const stringStart = match.index! + match[0].indexOf(literal);
-    const stringEnd = stringStart + literal.length;
+        progress.report({
+          message: `Extracting: "${innerText}" (${total - i}/${total})`,
+          increment: (1 / total) * 100,
+        });
 
-    const range = new vscode.Range(
-      document.positionAt(stringStart),
-      document.positionAt(stringEnd)
-    );
+        const key = await getKey(innerText);
+        if (!key) continue;
 
-    // Get localization key (prompt or infer)
-    const key = await getKey(innerText);
-    if (!key) continue; // skip if user cancels
+        workspaceEdit.replace(
+          document.uri,
+          range,
+          `${options.keyPrefix}${key}`
+        );
+        arbUpdates[key] = innerText;
+      }
 
-    // Add replacement: replace the string literal with localized key reference
-    workspaceEdit.replace(document.uri, range, `${options.keyPrefix}${key}`);
+      const applySuccess = await vscode.workspace.applyEdit(workspaceEdit);
+      if (!applySuccess) {
+        vscode.window.showErrorMessage("Failed to apply text replacements.");
+        return;
+      }
 
-    // Add to ARB updates map
-    arbUpdates[key] = innerText;
-  }
+      await addImportIfMissing(document, workspaceEdit);
+      await vscode.workspace.applyEdit(workspaceEdit);
 
-  // Apply all text replacements at once
-  const applySuccess = await vscode.workspace.applyEdit(workspaceEdit);
-  if (!applySuccess) {
-    vscode.window.showErrorMessage("Failed to apply text replacements.");
-    return;
-  }
+      const updateSuccess = await updateArbFilesBatch(arbUpdates);
+      if (!updateSuccess) {
+        vscode.window.showErrorMessage("Failed to update ARB files.");
+        return;
+      }
 
-  // Add import line if missing
-  await addImportIfMissing(document, workspaceEdit);
-  await vscode.workspace.applyEdit(workspaceEdit);
+      if (options.autoRunGenL10n) await runFlutterGenL10n();
 
-  // Update ARB files for all keys at once
-  const updateSuccess = await updateArbFilesBatch(arbUpdates);
-  if (!updateSuccess) {
-    vscode.window.showErrorMessage("Failed to update ARB files.");
-    return;
-  }
-
-  if (options.autoRunGenL10n) await runFlutterGenL10n();
-
-  vscode.window.showInformationMessage(
-    `Extracted ${Object.keys(arbUpdates).length} strings to ARB files`
+      vscode.window.showInformationMessage(
+        `Extracted ${Object.keys(arbUpdates).length} strings to ARB files`
+      );
+    }
   );
 }
 
@@ -96,6 +101,14 @@ async function addImportIfMissing(
   if (document.getText().includes(importStr)) return;
 
   editor.insert(document.uri, new vscode.Position(0, 0), importStr + "\n");
+}
+
+function chunkArray<T>(arr: T[], chunkSize: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < arr.length; i += chunkSize) {
+    chunks.push(arr.slice(i, i + chunkSize));
+  }
+  return chunks;
 }
 
 async function updateArbFilesBatch(
@@ -116,13 +129,29 @@ async function updateArbFilesBatch(
         : "{}";
       const arbJson = JSON.parse(arbContent);
 
-      for (const [key, value] of Object.entries(keyValues)) {
-        const translatedValue =
-          options.autoTranslate && arbFile
-            ? await translateText(value, arbFile.split("_")[1].split(".")[0])
-            : value;
+      const targetLang = arbFile.split("_")[1].split(".")[0];
 
-        arbJson[key] = translatedValue;
+      const keys = Object.keys(keyValues);
+      const texts = Object.values(keyValues);
+
+      // chunk size, adjust as needed based on rate limits and payload size
+      const chunkSize = 50;
+
+      const keyChunks = chunkArray(keys, chunkSize);
+      const textChunks = chunkArray(texts, chunkSize);
+
+      for (let i = 0; i < keyChunks.length; i++) {
+        let translations: string[] = [];
+
+        if (options.autoTranslate && arbFile) {
+          translations = await translateTextBatch(textChunks[i], targetLang);
+        } else {
+          translations = textChunks[i];
+        }
+
+        translations.forEach((translatedValue, idx) => {
+          arbJson[keyChunks[i][idx]] = translatedValue;
+        });
       }
 
       fs.writeFileSync(fullArbPath, JSON.stringify(arbJson, null, 2), "utf8");
