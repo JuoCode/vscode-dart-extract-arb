@@ -1,7 +1,4 @@
 import * as vscode from "vscode";
-import * as fs from "fs";
-import * as path from "path";
-import * as yaml from "js-yaml";
 import * as deepl from "deepl-node";
 import { options } from "./options";
 

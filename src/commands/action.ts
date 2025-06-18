@@ -1,13 +1,6 @@
 import * as vscode from "vscode";
-import * as fs from "fs";
-import * as path from "path";
 
-import {
-  addImportIfMissing,
-  getKey,
-  runFlutterGenL10n,
-  translateText,
-} from "../utils";
+import { addImportIfMissing, getKey, runFlutterGenL10n } from "../utils";
 import { options, setupConfig } from "../options";
 import { updateArbFiles } from "../files";
 

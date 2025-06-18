@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 
-import { getKey, runFlutterGenL10n, translateTextBatch } from "../utils";
+import { getKey, runFlutterGenL10n } from "../utils";
 import { options, setupConfig } from "../options";
 import { updateArbFilesBatch } from "../files";
 

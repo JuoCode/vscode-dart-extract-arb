@@ -2,13 +2,7 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import { options } from "./options";
-import {
-  chunkArray,
-  getKey,
-  runFlutterGenL10n,
-  translateText,
-  translateTextBatch,
-} from "./utils";
+import { chunkArray, translateText, translateTextBatch } from "./utils";
 
 export function updateFile(filename: string, key: string, value: string) {
   try {

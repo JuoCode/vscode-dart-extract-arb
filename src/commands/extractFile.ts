@@ -1,14 +1,6 @@
 import * as vscode from "vscode";
-import * as path from "path";
-import * as fs from "fs";
 import { options, setupConfig } from "../options";
-import {
-  addImportIfMissing,
-  chunkArray,
-  getKey,
-  runFlutterGenL10n,
-  translateTextBatch,
-} from "../utils";
+import { addImportIfMissing, getKey, runFlutterGenL10n } from "../utils";
 import { updateArbFilesBatch } from "../files";
 
 export async function extractAllTextsInFile() {
