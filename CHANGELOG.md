@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.4.0
+
+- added new commands to extract all `Text()` widget strings from current file or entire `lib/` folder
+- updated docs and README with new commands and features
+
 ## 2.3.0
 - added `auto-name-key: "ask"` option to prompt with pre-filled text
 - don't show error "missing key" if `translate: false`
