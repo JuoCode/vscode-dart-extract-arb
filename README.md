@@ -1,4 +1,4 @@
-# Flutter Extract to ARB
+# Flutter Extract to ARB 
 
 Download the extension from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=zealousFoundry.flutter-extract-to-arb) or the [Open VSX Registry](https://open-vsx.org/extension/ZealousFoundry/flutter-extract-to-arb)
 
