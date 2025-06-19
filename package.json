@@ -12,7 +12,7 @@
     "theme": "dark"
   },
   "icon": "assets/icon.png",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "engines": {
     "vscode": "^1.96.0"
   },
@@ -42,16 +42,7 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "flutter.extractAllTextsInFileToArb",
-        "title": "Extract Text Widget Strings to ARB (Current File)"
-      },
-      {
-        "command": "flutter.extractAllTextsInProjectToArb",
-        "title": "Extract Text Widget Strings to ARB (Project)"
-      }
-    ]
+    "commands": []
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

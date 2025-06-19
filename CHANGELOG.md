@@ -1,8 +1,8 @@
 # Change Log
 
-## 2.4.1
-- added new commands to extract all `Text()` widget strings from current file or entire `lib/` folder
-- updated docs and README with new commands and features
+## 2.4.2
+- fix issue with `auto-name-key` not working with `nullable-getter`
+- update docs
 
 ## 2.3.0
 - added `auto-name-key: "ask"` option to prompt with pre-filled text

@@ -67,36 +67,6 @@ export async function translateText(
   return result.text;
 }
 
-export async function translateTextBatch(
-  texts: string[],
-  // sourceLang: string,
-  targetLang: string
-): Promise<string[]> {
-  const authKey = getDeeplApiKey();
-  if (!authKey) {
-    if (options.autoTranslate) {
-      // show error only if autoTranslate is enabled
-      vscode.window.showErrorMessage("DeepL API key is missing");
-    }
-    return texts;
-  }
-  const translator = new deepl.Translator(authKey);
-
-  // https://developers.deepl.com/docs/resources/supported-languages
-  targetLang = targetLang.toLowerCase();
-  if (targetLang === "en") targetLang = "en-US";
-  if (targetLang === "pt") targetLang = "pt-PT";
-  if (targetLang === "zh") targetLang = "zh-HANS";
-
-  const result = await translator.translateText(
-    texts,
-    null, // sourceLang as deepl.SourceLanguageCode,
-    targetLang as deepl.TargetLanguageCode
-  );
-
-  return result.map((r) => r.text);
-}
-
 export async function promptForKey(
   defaultValue?: string
 ): Promise<string | undefined> {
@@ -120,14 +90,6 @@ export async function getKey(text: string) {
 
   // false -> simple prompt
   return await promptForKey();
-}
-
-export function chunkArray<T>(array: T[], size: number): T[][] {
-  const result: T[][] = [];
-  for (let i = 0; i < array.length; i += size) {
-    result.push(array.slice(i, i + size));
-  }
-  return result;
 }
 
 export async function addImportIfMissing(

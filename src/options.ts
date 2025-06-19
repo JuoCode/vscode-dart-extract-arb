@@ -65,28 +65,3 @@ function readL10nConfig(): any | null {
     return null;
   }
 }
-
-export function watchL10nYamlChanges(context: vscode.ExtensionContext) {
-  const workspaceFolders = vscode.workspace.workspaceFolders;
-  if (!workspaceFolders) return;
-
-  const workspaceRoot = workspaceFolders[0].uri.fsPath;
-
-  const watcher = vscode.workspace.createFileSystemWatcher(
-    new vscode.RelativePattern(workspaceRoot, "l10n.yaml")
-  );
-
-  const reloadConfig = () => {
-    setupConfig();
-    vscode.window.showInformationMessage("l10n.yaml updated, config reloaded.");
-  };
-
-  watcher.onDidChange(reloadConfig);
-  watcher.onDidCreate(reloadConfig);
-  watcher.onDidDelete(() => {
-    setupConfig();
-    vscode.window.showInformationMessage("l10n.yaml deleted, config reset.");
-  });
-
-  context.subscriptions.push(watcher);
-}
